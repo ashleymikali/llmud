@@ -49,7 +49,7 @@ Use the lookup tools to reference lore and keep the world consistent.
 When combat happens, use roll_dice and describe the action cinematically."""
 
 
-ModelProvider = Literal["openai", "anthropic"]
+ModelProvider = Literal["openai", "anthropic", "openrouter"]
 
 
 @dataclass
@@ -75,6 +75,16 @@ def create_model(provider: ModelProvider, model_name: str | None = None):
             model=model_name or "claude-sonnet-4-20250514",
             temperature=0.7,
         )
+    
+    elif provider == "openrouter":
+        from langchain_openai import ChatOpenAI
+        return ChatOpenAI(
+            model=model_name or "anthropic/claude-3.5-sonnet",
+            temperature=0.7,
+            openai_api_key=os.environ.get("OPENROUTER_API_KEY"),
+            openai_api_base="https://openrouter.ai/api/v1",
+        )
+    
     else:
         from langchain_openai import ChatOpenAI
         return ChatOpenAI(
@@ -88,18 +98,19 @@ def detect_provider() -> tuple[ModelProvider, str | None]:
     explicit_provider = os.environ.get("LLM_PROVIDER", "").lower()
     explicit_model = os.environ.get("LLM_MODEL")
     
-    if explicit_provider in ("anthropic", "openai"):
+    if explicit_provider in ("anthropic", "openai", "openrouter"):
         return explicit_provider, explicit_model  # type: ignore
     
     has_anthropic = bool(os.environ.get("ANTHROPIC_API_KEY"))
     has_openai = bool(os.environ.get("OPENAI_API_KEY"))
+    has_openrouter = bool(os.environ.get("OPENROUTER_API_KEY"))
     
-    if has_anthropic and not has_openai:
-        return "anthropic", explicit_model
-    if has_openai and not has_anthropic:
-        return "openai", explicit_model
-    if has_anthropic and has_openai:
-        return "anthropic", explicit_model  # Default to Anthropic
+    if has_openrouter:
+        return "openrouter", explicit_model
+    if has_anthropic:
+        return "anthropic", explicit_model 
+    if has_openai:
+        return "openai", explicit_model  # Default to Anthropic 
     
     return "openai", explicit_model
 

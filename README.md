@@ -2,6 +2,12 @@
 
 Large Language Multi-User Dungeon — an MCP server providing tools for running text-based roleplaying games.
 
+## New Feature: Detecting Traps
+![alt text](image.png)
+![alt text](image-1.png)
+![alt text](image-2.png)
+I may have gotten myself in a pickle here... oops. But the tool itself seems to be working!
+
 ## Quick Start
 
 ### Prerequisites
